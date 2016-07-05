@@ -1207,10 +1207,15 @@ public class XMLQueryTranslator {
             throws SystemException {
         List<ILogicalExpression> content = new ArrayList<ILogicalExpression>();
         for (ASTNode aVal : obj.getContent()) {
-            ILogicalExpression ke = string(data(vre(translateExpression(((PairConstructor) aVal).getKey(), tCtx))));
-            content.add(ke);
-            ILogicalExpression ve = vre(translateExpression(((PairConstructor) aVal).getValue(), tCtx));
-            content.add(ve);
+            if (aVal instanceof PairConstructor) {
+                ILogicalExpression ke = string(data(vre(translateExpression(((PairConstructor) aVal).getKey(), tCtx))));
+                content.add(ke);
+                ILogicalExpression ve = vre(translateExpression(((PairConstructor) aVal).getValue(), tCtx));
+                content.add(ve);
+            } else {
+                ILogicalExpression ee = vre(translateExpression(aVal, tCtx));
+                return createAssignment(sfce(BuiltinOperators.SIMPLE_OBJECT_UNION, ee), tCtx);
+            }
         }
         ILogicalExpression contentExpr = sfce(BuiltinOperators.CONCATENATE,
                 content.toArray(new ILogicalExpression[content.size()]));
